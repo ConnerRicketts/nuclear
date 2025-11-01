@@ -44,6 +44,7 @@ const Seekbar: React.FC<SeekbarProps> = ({
   segmentPopupMessage
 }) => {
   const [hasMounted, setHasMounted] = useState(false);
+
   useEffect(() => {
     if (!hasMounted) {
       setHasMounted(true);
@@ -58,51 +59,59 @@ const Seekbar: React.FC<SeekbarProps> = ({
 
   const duration = queue?.queueItems[queue.currentTrack]?.streams?.[0]?.duration;
 
-  const handleClick = useCallback((seek) => {
-    return event => {
-      const percent = (event.pageX - event.target.offsetLeft) / document.body.clientWidth;
-      seek(percent * duration);
-    };
-  }, [duration]);
+  const handleClick = useCallback(
+    (seek) => {
+      return (event) => {
+        const percent = (event.pageX - event.target.offsetLeft) / document.body.clientWidth;
+        seek(percent * duration);
+      };
+    },
+    [duration]
+  );
+
+  // Compute current count to display
+  const currentCount = queue?.queueItems?.length || 0;
 
   return (
     <div
-      data-testid='seekbar'
-      className={cx(
-        common.nuclear,
-        styles.seekbar,
-        isLoading ? 'loading' : ''
-      )}
+      data-testid="seekbar"
+      className={cx(common.nuclear, styles.seekbar, isLoading ? 'loading' : '')}
       onClick={handleClick(seek)}
       style={{ height }}
     >
       <div
-        data-testid='seekbar-fill'
+        data-testid="seekbar-fill"
         style={{ width: `${isLoading ? 0 : fill}%` }}
-        className={cx(
-          common.nuclear,
-          styles.seekbar_progress
-        )}
+        className={cx(common.nuclear, styles.seekbar_progress)}
       >
         {!isLoading && children}
-        {skipSegments.map((segment, index) => <Popup
-          key={index}
-          className={styles.seekbar_popup}
-          trigger={
-            <div
-              className={styles.seekbar_segment}
-              style={{
-                width: `${(segment.endTime - segment.startTime) / duration * 100}%`,
-                left: `${segment.startTime / duration * 100}%`
-              }}
-            />
-          }
-          content={segmentPopupMessage}
-          position='top center'
-          on='hover'
-        />)
-        }
+
+        {skipSegments.map((segment, index) => (
+          <Popup
+            key={index}
+            className={styles.seekbar_popup}
+            trigger={
+              <div
+                className={styles.seekbar_segment}
+                style={{
+                  width: `${((segment.endTime - segment.startTime) / duration) * 100}%`,
+                  left: `${(segment.startTime / duration) * 100}%`
+                }}
+              />
+            }
+            content={segmentPopupMessage}
+            position="top center"
+            on="hover"
+          />
+        ))}
       </div>
+
+      {/* Number overlay */}
+      {!isLoading && (
+        <span className={styles.seekbar_count}>
+          {currentCount}
+        </span>
+      )}
     </div>
   );
 };

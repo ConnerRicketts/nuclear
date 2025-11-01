@@ -38,6 +38,18 @@
     height: 100%;
   }
 
+  .seekbar_count {
+    position: absolute;
+    top: 50%;
+    right: 0.25em;
+    transform: translateY(-50%);
+    min-width: 3ch; 
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: common.$white;
+    pointer-events: none; 
+  }
+
   @keyframes shimmer {
     100% {
       transform: translateX(100%);
